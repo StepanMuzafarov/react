@@ -1,4 +1,6 @@
-import React, { type JSX } from 'react';
+import { JSX } from 'react';
+import React from 'react';
+
 function NotFoundPage(): JSX.Element {
   return (
     <div className="page__main">

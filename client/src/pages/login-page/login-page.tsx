@@ -1,4 +1,6 @@
-import React, { type JSX } from 'react';
+import { JSX } from 'react';
+import React from 'react';
+
 function LoginPage(): JSX.Element {
   return (
     <div className="page page--gray page--login">
@@ -6,9 +8,7 @@ function LoginPage(): JSX.Element {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <a className="header__logo-link" href="/">
-                <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81" height="41" />
-              </a>
+              <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81" height="41" />
             </div>
           </div>
         </div>
