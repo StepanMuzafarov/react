@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
 import type { FullOffer } from '../../types/offer.ts';
+import { Logo } from '../../components/logo/logo'
 
 interface Props {
   offers: FullOffer[];
@@ -14,7 +15,7 @@ function FavoritesPage({ offers }: Props): JSX.Element {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81" height="41" />
+              <Logo/>
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">

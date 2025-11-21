@@ -1,5 +1,4 @@
 import type { JSX } from 'react';
-import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainPage from '../../pages/main-page/main-page';
 import OfferPage from '../../pages/offer-page/offer-page';
