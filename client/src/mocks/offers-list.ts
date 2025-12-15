@@ -1,4 +1,4 @@
-import { OfferList } from '../types/offer';
+import type { OfferList } from '../types/offer';
 
 export const offersList: OfferList = [
   {
@@ -8,7 +8,7 @@ export const offersList: OfferList = [
     price: 120,
     isPremium: true,
     rating: 4.8,
-    images: ['img/apartment-01.jpg']
+    images: ['/img/apartment-01.jpg']
   },
   {
     id: '2',
@@ -17,7 +17,7 @@ export const offersList: OfferList = [
     price: 80,
     isPremium: false,
     rating: 4.0,
-    images: ['img/room.jpg']
+    images: ['/img/room.jpg']
   },
   {
     id: '3',
@@ -26,7 +26,7 @@ export const offersList: OfferList = [
     price: 132,
     isPremium: false,
     rating: 4.2,
-    images: ['img/apartment-02.jpg']
+    images: ['/img/apartment-02.jpg']
   },
   {
     id: '4',
@@ -35,6 +35,6 @@ export const offersList: OfferList = [
     price: 180,
     isPremium: true,
     rating: 5.0,
-    images: ['img/apartment-03.jpg']
+    images: ['/img/apartment-03.jpg']
   }
 ];

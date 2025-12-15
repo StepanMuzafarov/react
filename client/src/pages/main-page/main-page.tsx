@@ -1,18 +1,28 @@
 import type { JSX } from 'react';
+import { useState } from 'react';
+import { useAppSelector } from '../../hooks';
 import CitiesCardList from '../../components/cities-card-list/cities-card-list';
-import {Logo} from '../../components/logo/logo';
-import type { FullOffer } from '../../types/offer.ts';
-import { AppRoute } from '../../const.ts';
+import { Logo } from '../../components/logo/logo';
+import Map from '../../components/map/map';
+import CitiesList from '../../components/cities-list/cities-list';
+import SortOptions from '../../components/sort-options/sort-options';
+import { getOffersByCity, sortOffers } from '../../utils';
+import { AppRoute } from '../../const';
 import { Link } from 'react-router-dom';
 
-interface Props {
-  rentalOffersCount: number;
-  offers: FullOffer[];
-}
+function MainPage(): JSX.Element {
+  const city = useAppSelector((state) => state.city);
+  const allOffers = useAppSelector((state) => state.offers);
+  const sortType = useAppSelector((state) => state.sortType);
+  
+  const [activeOfferId, setActiveOfferId] = useState<string | undefined>();
 
-function MainPage({ rentalOffersCount, offers }: Props): JSX.Element {
+  const cityOffers = getOffersByCity(allOffers, city);
+  const sortedOffers = sortOffers(cityOffers, sortType);
+  const hasOffers = sortedOffers.length > 0;
+
   return (
-    <div className="page page--gray page--main">
+    <div className={`page page--gray page--main ${!hasOffers ? 'page__main--index-empty' : ''}`}>
       <header className="header">
         <div className="container">
           <div className="header__wrapper">
@@ -23,10 +33,14 @@ function MainPage({ rentalOffersCount, offers }: Props): JSX.Element {
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
                   <Link
-                  className="header__nav-link header__nav-link--profile" to={AppRoute.Favorites}>
+                    className="header__nav-link header__nav-link--profile"
+                    to={AppRoute.Favorites}
+                  >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">Myemail@gmail.com</span>
-                    <span className="header__favorite-count">3</span>
+                    <span className="header__favorite-count">
+                      {allOffers.filter(offer => offer.isFavorite).length}
+                    </span>
                   </Link>
                 </li>
                 <li className="header__nav-item">
@@ -40,70 +54,50 @@ function MainPage({ rentalOffersCount, offers }: Props): JSX.Element {
         </div>
       </header>
 
-      <main className="page__main page__main--index">
+      <main className={`page__main page__main--index ${!hasOffers ? 'page__main--index-empty' : ''}`}>
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
-            <ul className="locations__list tabs__list">
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Paris</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Cologne</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Brussels</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item tabs__item--active">
-                  <span>Amsterdam</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Hamburg</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Dusseldorf</span>
-                </a>
-              </li>
-            </ul>
+            <CitiesList />
           </section>
         </div>
         <div className="cities">
-          <div className="cities__places-container container">
-            <section className="cities__places places">
-              <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{rentalOffersCount} places to stay in Amsterdam</b>
-              <form className="places__sorting" action="#" method="get">
-                <span className="places__sorting-caption">Sort by</span>
-                <span className="places__sorting-type" tabIndex={0}>
-                  Popular
-                  <svg className="places__sorting-arrow" width="7" height="4">
-                    <use href="#icon-arrow-select"></use>
-                  </svg>
-                </span>
-                <ul className="places__options places__options--custom places__options--opened">
-                  <li className="places__option places__option--active" tabIndex={0}>Popular</li>
-                  <li className="places__option" tabIndex={0}>Price: low to high</li>
-                  <li className="places__option" tabIndex={0}>Price: high to low</li>
-                  <li className="places__option" tabIndex={0}>Top rated first</li>
-                </ul>
-              </form>
-              <CitiesCardList offers={offers} />
-            </section>
-            <div className="cities__right-section">
-              <section className="cities__map map"></section>
+          {hasOffers ? (
+            <div className="cities__places-container container">
+              <section className="cities__places places">
+                <h2 className="visually-hidden">Places</h2>
+                <b className="places__found">
+                  {sortedOffers.length} places to stay in {city}
+                </b>
+                <SortOptions />
+                <CitiesCardList
+                  offers={sortedOffers}
+                  onCardHover={(id) => setActiveOfferId(id)}
+                />
+              </section>
+              <div className="cities__right-section">
+                <section className="cities__map map">
+                  <Map
+                    offers={cityOffers}
+                    activeOfferId={activeOfferId}
+                    type="cities"
+                  />
+                </section>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="cities__places-container cities__places-container--empty container">
+              <section className="cities__no-places">
+                <div className="cities__status-wrapper tabs__content">
+                  <b className="cities__status">No places to stay available</b>
+                  <p className="cities__status-description">
+                    We could not find any property available at the moment in {city}
+                  </p>
+                </div>
+              </section>
+              <div className="cities__right-section"></div>
+            </div>
+          )}
         </div>
       </main>
     </div>

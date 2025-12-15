@@ -1,5 +1,4 @@
-import { JSX } from 'react';
-import React from 'react';
+import type { JSX } from 'react';
 
 function NotFoundPage(): JSX.Element {
   return (
