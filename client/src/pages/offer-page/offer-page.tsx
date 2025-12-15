@@ -1,18 +1,56 @@
 import type { JSX } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import type { FullOffer } from '../../types/offer';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { toggleFavorite } from '../../store/action';
+import ReviewsList from '../../components/reviews-list/reviews-list';
+import Map from '../../components/map/map';
+import CitiesCard from '../../components/cities-card/cities-card';
+import ReviewForm from '../../components/review-form/review-form';
+import { reviews } from '../../mocks/reviews';
+import { getOffersByCity } from '../../utils';
+import { Logo } from '../../components/logo/logo';
+import { Link } from 'react-router-dom';
+import { AppRoute } from '../../const';
 
-interface Props {
-  offers: FullOffer[];
-}
-
-function OfferPage({ offers }: Props): JSX.Element {
+function OfferPage(): JSX.Element {
   const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const offers = useAppSelector((state) => state.offers);
+  const allOffers = useAppSelector((state) => state.offers);
+  
   const offer = offers.find((o) => o.id === id);
 
+  const [activeNearOfferId, setActiveNearOfferId] = useState<string | undefined>();
+
   if (!offer) {
-    return <div>Offer not found</div>;
+    return (
+      <div className="page">
+        <header className="header">
+          <div className="container">
+            <div className="header__wrapper">
+              <div className="header__left">
+                <img className="header__logo" src="/img/logo.svg" alt="Rent service logo" width="81" height="41" />
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="page__main page__main--offer">
+          <div className="container">
+            <h1>Предложение не найдено</h1>
+            <a href="/">Вернуться на главную</a>
+          </div>
+        </main>
+      </div>
+    );
   }
+
+  const cityOffers = getOffersByCity(offers, offer.city.name);
+  const nearOffers = cityOffers.filter((o) => o.id !== offer.id).slice(0, 3);
+
+  const handleFavoriteClick = () => {
+    dispatch(toggleFavorite(offer.id));
+  };
 
   return (
     <div className="page">
@@ -20,16 +58,21 @@ function OfferPage({ offers }: Props): JSX.Element {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81" height="41" />
+              <Logo/>
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="#">
+                  <Link
+                    className="header__nav-link header__nav-link--profile"
+                    to={AppRoute.Favorites}
+                  >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">Myemail@gmail.com</span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
+                    <span className="header__favorite-count">
+                      {allOffers.filter(offer => offer.isFavorite).length}
+                    </span>
+                  </Link>
                 </li>
                 <li className="header__nav-item">
                   <a className="header__nav-link" href="#">
@@ -62,7 +105,11 @@ function OfferPage({ offers }: Props): JSX.Element {
               )}
               <div className="offer__name-wrapper">
                 <h1 className="offer__name">{offer.title}</h1>
-                <button className="offer__bookmark-button button" type="button">
+                <button 
+                  className={`offer__bookmark-button button ${offer.isFavorite ? 'offer__bookmark-button--active' : ''}`}
+                  type="button"
+                  onClick={handleFavoriteClick}
+                >
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use href="#icon-bookmark"></use>
                   </svg>
@@ -109,85 +156,34 @@ function OfferPage({ offers }: Props): JSX.Element {
                 </div>
               </div>
               <section className="offer__reviews reviews">
-                <h2 className="reviews__title">Reviews · <span className="reviews__amount">1</span></h2>
-                <ul className="reviews__list">
-                  <li className="reviews__item">
-                    <div className="reviews__user user">
-                      <div className="reviews__avatar-wrapper user__avatar-wrapper">
-                        <img className="reviews__avatar user__avatar" src="img/avatar-max.jpg" width="54" height="54" alt="Reviews avatar" />
-                      </div>
-                      <span className="reviews__user-name">Max</span>
-                    </div>
-                    <div className="reviews__info">
-                      <div className="reviews__rating rating">
-                        <div className="reviews__stars rating__stars">
-                          <span style={{width: "80%"}}></span>
-                          <span className="visually-hidden">Rating</span>
-                        </div>
-                      </div>
-                      <p className="reviews__text">
-                        A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam. The building is green and from 18th century.
-                      </p>
-                      <time className="reviews__time" dateTime="2019-04-24">April 2019</time>
-                    </div>
-                  </li>
-                </ul>
-                <form className="reviews__form form" action="#" method="post">
-                  <label className="reviews__label form__label" htmlFor="review">Your review</label>
-                  <div className="reviews__rating-form form__rating">
-                    <input className="form__rating-input visually-hidden" name="rating" value="5" id="5-stars" type="radio" />
-                    <label htmlFor="5-stars" className="reviews__rating-label form__rating-label" title="perfect">
-                      <svg className="form__star-image" width="37" height="33">
-                        <use href="#icon-star"></use>
-                      </svg>
-                    </label>
-
-                    <input className="form__rating-input visually-hidden" name="rating" value="4" id="4-stars" type="radio" />
-                    <label htmlFor="4-stars" className="reviews__rating-label form__rating-label" title="good">
-                      <svg className="form__star-image" width="37" height="33">
-                        <use href="#icon-star"></use>
-                      </svg>
-                    </label>
-
-                    <input className="form__rating-input visually-hidden" name="rating" value="3" id="3-stars" type="radio" />
-                    <label htmlFor="3-stars" className="reviews__rating-label form__rating-label" title="not bad">
-                      <svg className="form__star-image" width="37" height="33">
-                        <use href="#icon-star"></use>
-                      </svg>
-                    </label>
-
-                    <input className="form__rating-input visually-hidden" name="rating" value="2" id="2-stars" type="radio" />
-                    <label htmlFor="2-stars" className="reviews__rating-label form__rating-label" title="badly">
-                      <svg className="form__star-image" width="37" height="33">
-                        <use href="#icon-star"></use>
-                      </svg>
-                    </label>
-
-                    <input className="form__rating-input visually-hidden" name="rating" value="1" id="1-star" type="radio" />
-                    <label htmlFor="1-star" className="reviews__rating-label form__rating-label" title="terribly">
-                      <svg className="form__star-image" width="37" height="33">
-                        <use href="#icon-star"></use>
-                      </svg>
-                    </label>
-                  </div>
-                  <textarea className="reviews__textarea form__textarea" id="review" name="review" placeholder="Tell how was your stay, what you like and what can be improved"></textarea>
-                  <div className="reviews__button-wrapper">
-                    <p className="reviews__help">
-                      To submit review please make sure to set <span className="reviews__star">rating</span> and describe your stay with at least <b className="reviews__text-amount">50 characters</b>.
-                    </p>
-                    <button className="reviews__submit form__submit button" type="submit" disabled>Submit</button>
-                  </div>
-                </form>
+                <h2 className="reviews__title">
+                  Reviews · <span className="reviews__amount">{reviews.length}</span>
+                </h2>
+                <ReviewsList reviews={reviews} />
+                <ReviewForm />
               </section>
             </div>
           </div>
-          <section className="offer__map map"></section>
+          <section className="offer__map map">
+            <Map 
+              offers={[...nearOffers, offer]} 
+              activeOfferId={activeNearOfferId || offer.id} 
+              type="offer" 
+            />WARNING:absl:You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`.
+          </section>
         </section>
         <div className="container">
           <section className="near-places places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
             <div className="near-places__list places__list">
-              {/* Здесь можно добавить похожие предложения */}
+              {nearOffers.map((nearOffer) => (
+                <CitiesCard 
+                  key={nearOffer.id} 
+                  offer={nearOffer} 
+                  onCardHover={setActiveNearOfferId}
+                  cardType="near-places"
+                />
+              ))}
             </div>
           </section>
         </div>
