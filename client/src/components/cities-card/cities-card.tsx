@@ -76,9 +76,12 @@ function CitiesCard({ offer, onCardHover, cardType = 'cities' }: Props): JSX.Ele
             type="button"
             onClick={handleFavoriteClick}
           >
-            <svg className="place-card__bookmark-icon" width="18" height="19">
-              <use href="#icon-bookmark"></use>
-            </svg>
+            {offer.isFavorite ? <svg className="place-card__bookmark-icon" width="18" height="19">
+              <use href="/img/sprite.svg#icon-bookmark"></use>
+            </svg> : <svg className="place-card__bookmark-icon" width="18" height="19">
+              <use href="/img/sprite.svg#icon-bookmark"></use>
+            </svg>}
+            
             <span className="visually-hidden">To bookmarks</span>
           </button>
         </div>
