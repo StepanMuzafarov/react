@@ -1,0 +1,42 @@
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
+import { User } from './user.js';
+import { Offer } from './offer.js';
+
+class Review extends Model {}
+
+Review.init({
+  text: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: { len: [5, 1024] }
+  },
+  publishDate: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  rating: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    validate: { min: 1, max: 5 }
+  },
+  authorId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  offerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, {
+  sequelize,
+  modelName: 'Review',
+  tableName: 'reviews',
+  timestamps: true
+});
+
+Review.belongsTo(User, { as: 'author', foreignKey: 'authorId' });
+Review.belongsTo(Offer, { foreignKey: 'offerId' });
+
+export { Review };
