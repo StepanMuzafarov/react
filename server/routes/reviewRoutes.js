@@ -1,9 +1,10 @@
 import { Router } from 'express';
+import { addReview, getReviewsByOfferId } from '../controllers/reviewController.js'
+import { authenticateToken } from '../middleware/authMiddleware.js';
 
-const router = Router();
+const router = new Router();
 
-router.get('/reviews', (req, res) => {
-  res.json({ message: 'Reviews endpoint (заглушка)' });
-});
+router.post('/:offerId', authenticateToken, addReview);
+router.get('/:offerId', getReviewsByOfferId);
 
 export default router;
