@@ -1,11 +1,24 @@
-import type { FullOffer } from './offer';
+// src/types/state.ts
+import { store } from '../store';
+import type { AuthorizationStatusType } from './authorization-status';
+import type { OffersList } from './offer';
+import type { ReviewsList } from './review';
 
-export type SortType = 'popular' | 'price-low-to-high' | 'price-high-to-low' | 'top-rated';
-
-export interface State {
+export type State = {
+  authorizationStatus: AuthorizationStatusType;
+  offers: OffersList;
+  isOffersDataLoading: boolean;  // ← Должно быть!
+  error: string | null;
+  sortType: string;
+  reviews: ReviewsList;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    avatar: string;
+    isPro: boolean;
+  } | null;
   city: string;
-  offers: FullOffer[];
-  sortType: SortType;
-  authorizationStatus: string;
-  isLoading: boolean;
-}
+};
+
+export type AppDispatch = typeof store.dispatch;

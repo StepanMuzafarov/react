@@ -7,9 +7,9 @@ function CitiesList(): JSX.Element {
   const dispatch = useAppDispatch();
   const currentCity = useAppSelector((state) => state.city);
 
-  const handleCityClick = (city: string) => {
-    dispatch(changeCity(city));
-  };
+  const handleCityClick = (cityName: string) => {
+  dispatch(changeCity(cityName)); 
+};
 
   return (
     <ul className="locations__list tabs__list">

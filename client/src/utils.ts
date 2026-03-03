@@ -1,35 +1,34 @@
-import type { FullOffer } from './types/offer';
-import type { SortType } from './types/state';
-import type { City } from './types/offer';
+import type { Offer } from './types/offer';
+import { BACKEND_URL } from './services/api';
 
-export const getOffersByCity = (offers: FullOffer[], city: string): FullOffer[] => {
+export const getOffersByCity = (offers: Offer[], city: string): Offer[] => {
   return offers.filter(offer => offer.city.name === city);
 };
 
-export const sortOffers = (offers: FullOffer[], sortType: SortType): FullOffer[] => {
+export const sortOffers = (offers: Offer[], sortType: string): Offer[] => {
   const sortedOffers = [...offers];
   
   switch (sortType) {
     case 'price-low-to-high':
       return sortedOffers.sort((a, b) => a.price - b.price);
-    
     case 'price-high-to-low':
       return sortedOffers.sort((a, b) => b.price - a.price);
-    
     case 'top-rated':
       return sortedOffers.sort((a, b) => b.rating - a.rating);
-    
     case 'popular':
     default:
       return sortedOffers;
   }
 };
 
-export const getCity = (cityName: string, cities: City[]): City | undefined => {
-  return cities.find(city => city.name === cityName);
-};
+export const getImageUrl = (imageUrl: string | null | undefined): string => {
+  if (!imageUrl) {
+    return ''; 
+  }
+  
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
 
-export const getUniqueCities = (offers: FullOffer[]): string[] => {
-  const cities = offers.map(offer => offer.city.name);
-  return Array.from(new Set(cities));
+  return `${BACKEND_URL}${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`;
 };

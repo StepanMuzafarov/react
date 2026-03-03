@@ -4,7 +4,10 @@ export type Review = {
   user: {
     name: string;
     avatarUrl: string;
+    isPro: boolean;
   };
   comment: string;
   rating: number;
 };
+
+export type ReviewsList = Review[];

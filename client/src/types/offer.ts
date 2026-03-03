@@ -1,46 +1,43 @@
-export type Location = {
-  latitude: number;
-  longitude: number;
-  zoom: number;
-}
+// src/types/offer.ts
 
-export type City = {
-  name: string;
-  location: Location;
-}
-
-export type Host = {
-  name: string;
-  avatarUrl: string;
-  isPro: boolean;
-}
-
-export type FullOffer = {
+export type Offer = {
   id: string;
   title: string;
-  type: 'apartment' | 'room' | 'house' | 'hotel';
+  description?: string;  // ← Может быть undefined
+  type: string;
   price: number;
-  city: City;
-  location: Location;
+  city: {
+    name: string;
+    location: {
+      latitude: number;
+      longitude: number;
+      zoom: number;
+    };
+  };
+  location: {
+    latitude: number;
+    longitude: number;
+  };
   isFavorite: boolean;
   isPremium: boolean;
   rating: number;
-  description: string;
-  bedrooms: number;
-  goods: string[];
-  host: Host;
-  images: string[];
-  maxAdults: number;
-}
+  previewImage: string;
+  photos?: string[];  // ← Массив дополнительных фото
+  rooms: number;
+  guests: number;
+  bedrooms?: number;  // ← Добавьте
+  maxAdults?: number;  // ← Добавьте
+  features?: string[];  // ← Было goods в ТЗ, но лучше features
+  commentsCount?: number;
+  author?: {  // ← Было host в ТЗ, но лучше author
+    id: string;
+    name: string;
+    avatarUrl: string;
+    isPro: boolean;
+  };
+};
 
-export type OfferListItem = {
-  id: string;
-  title: string;
-  type: string;
-  price: number;
-  isPremium: boolean;
-  rating: number;
-  images: string[];
-}
+// ✅ FullOffer — это тот же Offer (для совместимости)
+export type FullOffer = Offer;
 
-export type OfferList = OfferListItem[];
+export type OffersList = Offer[];
