@@ -1,18 +1,16 @@
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAppDispatch } from '../../hooks';
-import { toggleFavorite } from '../../store/action';
-import type { FullOffer } from '../../types/offer.ts';
+import type { FullOffer } from '../../types/offer';
 
 interface Props {
   offer: FullOffer;
   onCardHover?: (id: string | undefined) => void;
   cardType?: 'cities' | 'favorites' | 'near-places';
+  onFavoriteClick?: (offerId: string) => void;
 }
 
-function CitiesCard({ offer, onCardHover, cardType = 'cities' }: Props): JSX.Element {
-  const dispatch = useAppDispatch();
+function CitiesCard({ offer, onCardHover, cardType = 'cities', onFavoriteClick }: Props): JSX.Element {
   const [isActive, setIsActive] = useState(false);
 
   const handleMouseEnter = () => {
@@ -29,8 +27,13 @@ function CitiesCard({ offer, onCardHover, cardType = 'cities' }: Props): JSX.Ele
     }
   };
 
-  const handleFavoriteClick = () => {
-    dispatch(toggleFavorite(offer.id));
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (onFavoriteClick) {
+      onFavoriteClick(offer.id);
+    }
   };
 
   const cardClass = cardType === 'favorites' 
@@ -58,10 +61,10 @@ function CitiesCard({ offer, onCardHover, cardType = 'cities' }: Props): JSX.Ele
         <Link to={`/offer/${offer.id}`}>
           <img
             className="place-card__image"
-            src={offer.images[0]}
+            src={offer.previewImage}
             width={cardType === 'favorites' ? "150" : "260"}
             height={cardType === 'favorites' ? "110" : "200"}
-            alt="Place image"
+            alt={offer.title}
           />
         </Link>
       </div>
@@ -74,14 +77,11 @@ function CitiesCard({ offer, onCardHover, cardType = 'cities' }: Props): JSX.Ele
           <button 
             className={`place-card__bookmark-button button ${offer.isFavorite ? 'place-card__bookmark-button--active' : ''}`}
             type="button"
-            onClick={handleFavoriteClick}
+            onClick={handleFavoriteClick} 
           >
-            {offer.isFavorite ? <svg className="place-card__bookmark-icon" width="18" height="19">
+            <svg className="place-card__bookmark-icon" width="18" height="19">
               <use href="/img/sprite.svg#icon-bookmark"></use>
-            </svg> : <svg className="place-card__bookmark-icon" width="18" height="19">
-              <use href="/img/sprite.svg#icon-bookmark"></use>
-            </svg>}
-            
+            </svg>
             <span className="visually-hidden">To bookmarks</span>
           </button>
         </div>

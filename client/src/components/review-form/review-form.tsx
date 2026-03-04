@@ -1,5 +1,7 @@
 import type { JSX, FormEvent } from 'react';
 import { useState, Fragment } from 'react';
+import { useAppDispatch } from '../../hooks';
+import { postReviewAction } from '../../store/api-actions';
 
 const ratingValues = [
   { value: 5, title: 'perfect' },
@@ -9,7 +11,12 @@ const ratingValues = [
   { value: 1, title: 'terribly' },
 ];
 
-function ReviewForm(): JSX.Element {
+interface Props {
+  offerId: string;
+}
+
+function ReviewForm({ offerId }: Props): JSX.Element {
+  const dispatch = useAppDispatch();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,14 +30,15 @@ function ReviewForm(): JSX.Element {
 
     setIsSubmitting(true);
     
-    console.log('Отправка отзыва:', { rating, comment });
+    dispatch(postReviewAction({ 
+      offerId, 
+      comment, 
+      rating 
+    }));
     
-    setTimeout(() => {
-      setRating(0);
-      setComment('');
-      setIsSubmitting(false);
-      alert('Отзыв успешно отправлен!');
-    }, 1000);
+    setRating(0);
+    setComment('');
+    setIsSubmitting(false);
   };
 
   const isSubmitDisabled = !rating || comment.length < 50 || comment.length > 300 || isSubmitting;

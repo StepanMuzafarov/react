@@ -1,13 +1,14 @@
 import type { JSX } from 'react';
 import CitiesCard from '../cities-card/cities-card';
-import type { FullOffer } from '../../types/offer.ts';
+import type { FullOffer } from '../../types/offer';
 
 interface Props {
   offers: FullOffer[];
   onCardHover?: (id: string | undefined) => void;
+  onFavoriteClick?: (offerId: string) => void;
 }
 
-function CitiesCardList({ offers, onCardHover }: Props): JSX.Element {
+function CitiesCardList({ offers, onCardHover, onFavoriteClick }: Props): JSX.Element {
   return (
     <div className="cities__places-list places__list tabs__content">
       {offers.map((offer) => (
@@ -15,6 +16,7 @@ function CitiesCardList({ offers, onCardHover }: Props): JSX.Element {
           key={offer.id}
           offer={offer}
           onCardHover={onCardHover}
+          onFavoriteClick={onFavoriteClick}
         />
       ))}
     </div>

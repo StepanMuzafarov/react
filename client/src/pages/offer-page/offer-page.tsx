@@ -1,27 +1,38 @@
-import type { JSX } from 'react';
-import { useState } from 'react';
+import type { JSX} from 'react'; 
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { toggleFavorite } from '../../store/action';
+import { fetchReviewsAction } from '../../store/api-actions';
 import ReviewsList from '../../components/reviews-list/reviews-list';
 import Map from '../../components/map/map';
 import CitiesCard from '../../components/cities-card/cities-card';
 import ReviewForm from '../../components/review-form/review-form';
-import { reviews } from '../../mocks/reviews';
-import { getOffersByCity } from '../../utils';
+import { getOffersByCity, getImageUrl } from '../../utils';
 import { Logo } from '../../components/logo/logo';
 import { Link } from 'react-router-dom';
 import { AppRoute } from '../../const';
+import { getUserEmail, getUserAvatar } from '../../store/selectors';
 
 function OfferPage(): JSX.Element {
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const offers = useAppSelector((state) => state.offers);
-  const allOffers = useAppSelector((state) => state.offers);
+  
+  // ✅ Берём данные пользователя из Redux, а не хардкодим
+  const userEmail = useAppSelector(getUserEmail);
+  const userAvatar = useAppSelector(getUserAvatar);
   
   const offer = offers.find((o) => o.id === id);
 
   const [activeNearOfferId, setActiveNearOfferId] = useState<string | undefined>();
+
+  // ✅ Загружаем отзывы при монтировании компонента
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchReviewsAction(id));
+    }
+  }, [dispatch, id]);
 
   if (!offer) {
     return (
@@ -30,7 +41,7 @@ function OfferPage(): JSX.Element {
           <div className="container">
             <div className="header__wrapper">
               <div className="header__left">
-                <img className="header__logo" src="/img/logo.svg" alt="Rent service logo" width="81" height="41" />
+                <Logo />
               </div>
             </div>
           </div>
@@ -38,7 +49,7 @@ function OfferPage(): JSX.Element {
         <main className="page__main page__main--offer">
           <div className="container">
             <h1>Предложение не найдено</h1>
-            <a href="/">Вернуться на главную</a>
+            <Link to={AppRoute.Main}>Вернуться на главную</Link>
           </div>
         </main>
       </div>
@@ -58,7 +69,7 @@ function OfferPage(): JSX.Element {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <Logo/>
+              <Logo />
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
@@ -67,10 +78,23 @@ function OfferPage(): JSX.Element {
                     className="header__nav-link header__nav-link--profile"
                     to={AppRoute.Favorites}
                   >
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">Myemail@gmail.com</span>
+                    {userAvatar && (
+  <div className="header__avatar-wrapper user__avatar-wrapper">
+    <img 
+      className="user__avatar" 
+      src={getImageUrl(userAvatar)} 
+      alt="avatar" 
+      width={24} 
+      height={24} 
+    />
+  </div>
+)}
+                    {/* ✅ Email из Redux */}
+                    <span className="header__user-name user__name">
+                      {userEmail || 'Гость'}
+                    </span>
                     <span className="header__favorite-count">
-                      {allOffers.filter(offer => offer.isFavorite).length}
+                      {offers.filter(o => o.isFavorite).length}
                     </span>
                   </Link>
                 </li>
@@ -89,9 +113,14 @@ function OfferPage(): JSX.Element {
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              {offer.images.map((image, index) => (
+              {/* ✅ photos вместо images + getImageUrl */}
+              {offer.photos?.map((image, index) => (
                 <div key={index} className="offer__image-wrapper">
-                  <img className="offer__image" src={image} alt="Photo studio" />
+                  <img 
+                    className="offer__image" 
+                    src={getImageUrl(image)} 
+                    alt="Photo studio" 
+                  />
                 </div>
               ))}
             </div>
@@ -125,8 +154,10 @@ function OfferPage(): JSX.Element {
               </div>
               <ul className="offer__features">
                 <li className="offer__feature offer__feature--entire">{offer.type}</li>
-                <li className="offer__feature offer__feature--bedrooms">{offer.bedrooms} Bedrooms</li>
-                <li className="offer__feature offer__feature--adults">Max {offer.maxAdults} adults</li>
+                {/* ✅ rooms вместо bedrooms */}
+                <li className="offer__feature offer__feature--bedrooms">{offer.rooms} Bedroom{offer.rooms !== 1 ? 's' : ''}</li>
+                {/* ✅ guests вместо maxAdults */}
+                <li className="offer__feature offer__feature--adults">Max {offer.guests} adult{offer.guests !== 1 ? 's' : ''}</li>
               </ul>
               <div className="offer__price">
                 <b className="offer__price-value">&euro;{offer.price}</b>
@@ -135,7 +166,8 @@ function OfferPage(): JSX.Element {
               <div className="offer__inside">
                 <h2 className="offer__inside-title">What's inside</h2>
                 <ul className="offer__inside-list">
-                  {offer.goods.map((good, index) => (
+                  {/* ✅ features вместо goods */}
+                  {offer.features?.map((good, index) => (
                     <li key={index} className="offer__inside-item">{good}</li>
                   ))}
                 </ul>
@@ -143,24 +175,34 @@ function OfferPage(): JSX.Element {
               <div className="offer__host">
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
-                  <div className={`offer__avatar-wrapper user__avatar-wrapper ${offer.host.isPro ? 'offer__avatar-wrapper--pro' : ''}`}>
-                    <img className="offer__avatar user__avatar" src={offer.host.avatarUrl} width="74" height="74" alt="Host avatar" />
+                  {/* ✅ author вместо host + getImageUrl */}
+                  <div className={`offer__avatar-wrapper user__avatar-wrapper ${offer.author?.isPro ? 'offer__avatar-wrapper--pro' : ''}`}>
+                    {offer.author?.avatarUrl && (
+                      <img 
+                        className="offer__avatar user__avatar" 
+                        src={getImageUrl(offer.author.avatarUrl)} 
+                        width="74" 
+                        height="74" 
+                        alt="Host avatar" 
+                      />
+                    )}
                   </div>
-                  <span className="offer__user-name">{offer.host.name}</span>
-                  {offer.host.isPro && <span className="offer__user-status">Pro</span>}
+                  <span className="offer__user-name">{offer.author?.name || 'Unknown'}</span>
+                  {offer.author?.isPro && <span className="offer__user-status">Pro</span>}
                 </div>
                 <div className="offer__description">
-                  {offer.description.split('\n').map((paragraph, index) => (
+                  {/* ✅ Защита от undefined description */}
+                  {(offer.description ?? '').split('\n').map((paragraph, index) => (
                     <p key={index} className="offer__text">{paragraph}</p>
                   ))}
                 </div>
               </div>
               <section className="offer__reviews reviews">
                 <h2 className="reviews__title">
-                  Reviews · <span className="reviews__amount">{reviews.length}</span>
+                  Reviews · <span className="reviews__amount">{/* reviews.length */}</span>
                 </h2>
-                <ReviewsList reviews={reviews} />
-                <ReviewForm />
+                <ReviewsList reviews={[]} />
+                <ReviewForm offerId={offer.id} />
               </section>
             </div>
           </div>
