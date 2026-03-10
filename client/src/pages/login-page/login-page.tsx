@@ -1,24 +1,31 @@
-import type { JSX, FormEvent  } from 'react';
-import { useRef} from 'react';
+import type { JSX, FormEvent } from 'react';
+import { useRef, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { loginAction } from '../../store/api-actions';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import type { AuthData } from '../../types/user-data';
 import { getAuthorizationStatus } from '../../store/selectors';
+import { LoadingPage } from '../../components/loading-page/loading-page';
 
 function LoginPage(): JSX.Element {
   const loginRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
   const dispatch = useAppDispatch();
   const userAuthorizationStatus = useAppSelector(getAuthorizationStatus);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   if (userAuthorizationStatus === AuthorizationStatus.Auth) {
-    return <Navigate to={AppRoute.Main} />;
+    return <Navigate to={AppRoute.Main} replace />;
   }
 
   const onSubmit = (authData: AuthData) => {
-    dispatch(loginAction(authData));
+    setIsLoggingIn(true);
+    dispatch(loginAction(authData))
+      .unwrap()
+      .finally(() => {
+        setIsLoggingIn(false);
+      });
   };
 
   const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
@@ -31,17 +38,12 @@ function LoginPage(): JSX.Element {
     }
   };
 
+  if (isLoggingIn) {
+    return <LoadingPage />;
+  }
+
   return (
     <div className="page page--gray page--login">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-             
-            </div>
-          </div>
-        </div>
-      </header>
       <main className="page__main page__main--login">
         <div className="page__login-container container">
           <section className="login">

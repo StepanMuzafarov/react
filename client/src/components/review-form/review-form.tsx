@@ -25,20 +25,29 @@ function ReviewForm({ offerId }: Props): JSX.Element {
     evt.preventDefault();
     
     if (!rating || comment.length < 50 || comment.length > 300) {
+      alert('Комментарий должен быть от 50 до 300 символов и нужна оценка!');
       return;
     }
 
     setIsSubmitting(true);
     
-    dispatch(postReviewAction({ 
-      offerId, 
-      comment, 
-      rating 
-    }));
-    
-    setRating(0);
-    setComment('');
-    setIsSubmitting(false);
+    dispatch(postReviewAction({
+      offerId,
+      comment,
+      rating
+    }))
+      .unwrap()
+      .then(() => {
+        setRating(0);
+        setComment('');
+      })
+      .catch((error) => {
+        console.error('Ошибка отправки комментария:', error);
+        alert('Ошибка: ' + (error.message || 'Не удалось отправить комментарий'));
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   const isSubmitDisabled = !rating || comment.length < 50 || comment.length > 300 || isSubmitting;
