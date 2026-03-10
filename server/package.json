@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "swagger:gen-examples": "node scripts/gen-swagger-examples.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
@@ -18,9 +19,13 @@
     "pg-hstore": "^2.3.4",
     "react-redux": "^9.2.0",
     "sequelize": "^6.37.7",
-    "uuid": "^13.0.0"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^13.0.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@faker-js/faker": "^10.3.0",
+    "nodemon": "^3.1.0",
+    "yaml": "^2.8.2"
   }
 }
