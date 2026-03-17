@@ -3,17 +3,21 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { AppDispatch, State } from '../types/state';
 import type { OffersList } from '../types/offer';
 import type { ReviewsList } from '../types/review';
-import { 
-  offersCityList, 
-  requireAuthorization, 
-  setError, 
+import {
+  offersCityList,
+  requireAuthorization,
+  setError,
   setReviews,
   setUserData,
   toggleFavorite,
+  setOffersDataLoadingStatus,
 } from './action';
 import { saveToken, dropToken } from '../services/token';
 import { APIRoute, AuthorizationStatus, TIMEOUT_SHOW_ERROR } from '../const';
 import type { AuthData, UserData } from '../types/user-data';
+import type { FullOffer } from '../types/offer';
+
+const MIN_LOADING_TIME = 1000;
 
 const handleError = (dispatch: AppDispatch, error: unknown) => {
   const message =
@@ -29,13 +33,34 @@ export const fetchOffersAction = createAsyncThunk<void, undefined, {
 }>(
   'data/fetchOffers',
   async (_arg, { dispatch, extra: api }) => {
+    const startTime = Date.now();
+    dispatch(setOffersDataLoadingStatus(true));
+    
     try {
       const { data } = await api.get<OffersList>(APIRoute.Offers);
       dispatch(offersCityList(data));
     } catch (error) {
       handleError(dispatch, error);
       throw error;
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
+
+      await new Promise(resolve => setTimeout(resolve, remainingTime));
+      dispatch(setOffersDataLoadingStatus(false));
     }
+  },
+);
+
+export const fetchOfferByIdAction = createAsyncThunk<FullOffer, string, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'offer/fetchOfferById',
+  async (offerId, { extra: api }) => {
+    const { data } = await api.get<FullOffer>(`${APIRoute.Offers}/${offerId}`);
+    return data;
   },
 );
 
@@ -48,21 +73,16 @@ export const checkAuthAction = createAsyncThunk<void, undefined, {
   async (_arg, { dispatch, extra: api }) => {
     try {
       const { data } = await api.get<UserData>(APIRoute.Login);
-      
-      // ✅ Сохраняем токен из checkAuth
       if (data.token) {
         saveToken(data.token);
       }
-      
-      // ✅ Сохраняем данные пользователя в Redux
       dispatch(setUserData({
-        id: String(data.id),        // ✅ Приводим к string на всякий случай
+        id: String(data.id),
         email: data.email,
-        username: data.username,    // ✅ Теперь это поле есть в UserData
-        avatar: data.avatar,        // ✅ Теперь это поле есть в UserData
+        username: data.username,
+        avatar: data.avatar,
         isPro: data.isPro,
       }));
-      
       dispatch(requireAuthorization(AuthorizationStatus.Auth));
     } catch (error) {
       dropToken();
@@ -82,16 +102,13 @@ export const loginAction = createAsyncThunk<UserData, AuthData, {
     try {
       const { data } = await api.post<UserData>(APIRoute.Login, { email, password });
       saveToken(data.token);
-      
-      // ✅ Сохраняем данные пользователя в Redux
       dispatch(setUserData({
-        id: String(data.id),        // ✅ Приводим к string
+        id: String(data.id),
         email: data.email,
         username: data.username,
         avatar: data.avatar,
         isPro: data.isPro,
       }));
-      
       dispatch(requireAuthorization(AuthorizationStatus.Auth));
       return data;
     } catch (error) {
@@ -114,7 +131,7 @@ export const logoutAction = createAsyncThunk<void, undefined, {
       await api.delete(APIRoute.Logout);
       dropToken();
       dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
-      dispatch(setUserData(null));  // ✅ Очищаем данные пользователя при выходе
+      dispatch(setUserData(null));
     } catch (error) {
       handleError(dispatch, error);
       throw error;
@@ -171,11 +188,9 @@ export const toggleFavoriteAction = createAsyncThunk<
   'offer/toggleFavorite',
   async ({ offerId, status }, { dispatch, extra: api }) => {
     dispatch(toggleFavorite(offerId));
-    
     try {
       await api.post(`${APIRoute.Favorite}/${offerId}/${status ? 1 : 0}`);
       dispatch(fetchOffersAction());
-      
       return { offerId, status };
     } catch (error) {
       dispatch(toggleFavorite(offerId));

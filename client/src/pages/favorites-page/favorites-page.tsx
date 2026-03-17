@@ -1,48 +1,39 @@
 import type { JSX } from 'react';
 import { useAppSelector } from '../../hooks';
-import { Logo } from '../../components/logo/logo';
 import CitiesCard from '../../components/cities-card/cities-card';
-import { getUniqueCities } from '../../utils';
 import { Link } from 'react-router-dom';
+import { AppRoute } from '../../const';
+import { toggleFavoriteAction } from '../../store/api-actions';
+import { useAppDispatch } from '../../hooks';
 
 function FavoritesPage(): JSX.Element {
+  const dispatch = useAppDispatch();
   const offers = useAppSelector((state) => state.offers);
-
+  
   const favoriteOffers = offers.filter(offer => offer.isFavorite);
   
-  const favoriteCities = getUniqueCities(favoriteOffers);
-  const groupedOffers = favoriteCities.map(city => ({
+  const uniqueCities = Array.from(
+    new Set(favoriteOffers.map(offer => offer.city.name))
+  );
+  
+  const groupedOffers = uniqueCities.map(city => ({
     city,
     offers: favoriteOffers.filter(offer => offer.city.name === city)
   }));
 
+  const handleFavoriteClick = (offerId: string) => {
+    const offer = offers.find(o => o.id === offerId);
+    if (offer) {
+      dispatch(toggleFavoriteAction({
+        offerId,
+        status: !offer.isFavorite
+      }));
+    }
+  };
+
   if (favoriteOffers.length === 0) {
     return (
       <div className="page page--favorites-empty">
-        <header className="header">
-          <div className="container">
-            <div className="header__wrapper">
-              <div className="header__left">
-                <Logo />
-              </div>
-              <nav className="header__nav">
-                <ul className="header__nav-list">
-                  <li className="header__nav-item user">
-                    <Link className="header__nav-link header__nav-link--profile" to="/">
-                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__user-name user__name">Myemail@gmail.com</span>
-                    </Link>
-                  </li>
-                  <li className="header__nav-item">
-                    <a className="header__nav-link" href="#">
-                      <span className="header__signout">Sign out</span>
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-        </header>
         <main className="page__main page__main--favorites-empty">
           <div className="page__favorites-container container">
             <section className="favorites favorites--empty">
@@ -57,7 +48,7 @@ function FavoritesPage(): JSX.Element {
           </div>
         </main>
         <footer className="footer">
-          <Link className="footer__logo-link" to="/">
+          <Link className="footer__logo-link" to={AppRoute.Main}>
             <img className="footer__logo" src="/img/logo.svg" alt="6 cities logo" width="64" height="33" />
           </Link>
         </footer>
@@ -67,32 +58,6 @@ function FavoritesPage(): JSX.Element {
 
   return (
     <div className="page">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <Logo />
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <Link className="header__nav-link header__nav-link--profile" to="/">
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">Myemail@gmail.com</span>
-                    <span className="header__favorite-count">{favoriteOffers.length}</span>
-                  </Link>
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       <main className="page__main page__main--favorites">
         <div className="page__favorites-container container">
           <section className="favorites">
@@ -113,20 +78,19 @@ function FavoritesPage(): JSX.Element {
                         key={offer.id}
                         offer={offer}
                         cardType="favorites"
+                        onFavoriteClick={handleFavoriteClick}
                       />
                     ))}
                   </div>
-                  <button className="place-card__bookmark-button place-card__bookmark-button--active button" type="button">
-                      <span className="visually-hidden">In bookmarks</span>
-                  </button>
                 </li>
               ))}
             </ul>
           </section>
         </div>
       </main>
-      <footer className="footer">
-        <Link className="footer__logo-link" to="/">
+
+      <footer className="footer container">
+        <Link className="footer__logo-link" to={AppRoute.Main}>
           <img className="footer__logo" src="/img/logo.svg" alt="6 cities logo" width="64" height="33" />
         </Link>
       </footer>
@@ -134,4 +98,4 @@ function FavoritesPage(): JSX.Element {
   );
 }
 
-export default FavoritesPage;
+export { FavoritesPage };

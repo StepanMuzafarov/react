@@ -20,20 +20,17 @@ function MainPage(): JSX.Element {
   const sortedOffers = sortOffers(cityOffers, sortType);
   const hasOffers = sortedOffers.length > 0;
 
-  // src/pages/main-page/main-page.tsx
   const handleCardFavoriteClick = (offerId: string) => {
     const offer = allOffers.find(o => o.id === offerId);
     if (offer) {
-      // ✅ Передаём НОВЫЙ статус (после переключения)
       dispatch(toggleFavoriteAction({ 
         offerId, 
-        status: !offer.isFavorite  // ← Инвертируем текущий статус
+        status: !offer.isFavorite
       }));
     }
   };
 
   return (
-    // ✅ Только <main>, без обёртки .page и без <header>
     <main className={`page__main page__main--index ${!hasOffers ? 'page__main--index-empty' : ''}`}>
       <h1 className="visually-hidden">Cities</h1>
       
@@ -55,7 +52,7 @@ function MainPage(): JSX.Element {
               <CitiesCardList
                 offers={sortedOffers}
                 onCardHover={(id) => setActiveOfferId(id)}
-                onFavoriteClick={handleCardFavoriteClick}  // ✅ Передаём обработчик
+                onFavoriteClick={handleCardFavoriteClick} 
               />
             </section>
             <div className="cities__right-section">

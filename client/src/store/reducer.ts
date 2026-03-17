@@ -1,8 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { 
-  requireAuthorization, 
-  offersCityList, 
-  setOffersDataLoadingStatus, 
+import {
+  requireAuthorization,
+  offersCityList,
+  setOffersDataLoadingStatus,
   setError,
   setSortType,
   changeCity,
@@ -56,7 +56,7 @@ export const reducer = createReducer(initialState, (builder) => {
     .addCase(setFavoriteStatus, (state, action) => {
       const offer = state.offers.find(o => o.id === action.payload.offerId);
       if (offer) {
-        offer.isFavorite = action.payload.status; 
+        offer.isFavorite = action.payload.status;
       }
     })
     .addCase(setReviews, (state, action) => {
@@ -64,5 +64,5 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(setUserData, (state, action) => {
       state.user = action.payload;
-    }); 
+    });
 });

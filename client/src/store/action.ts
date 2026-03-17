@@ -2,6 +2,7 @@ import { createAction } from '@reduxjs/toolkit';
 import type { AuthorizationStatusType } from '../types/authorization-status';
 import type { OffersList } from '../types/offer';
 import type { ReviewsList } from '../types/review';
+
 export const toggleFavoriteLocal = createAction<string>('offer/toggleFavoriteLocal');
 export const requireAuthorization = createAction<AuthorizationStatusType>('user/requireAuthorization');
 export const offersCityList = createAction<OffersList>('data/offersCityList');

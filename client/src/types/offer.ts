@@ -1,9 +1,7 @@
-// src/types/offer.ts
-
 export type Offer = {
   id: string;
   title: string;
-  description?: string;  // ← Может быть undefined
+  description?: string;
   type: string;
   price: number;
   city: {
@@ -22,14 +20,14 @@ export type Offer = {
   isPremium: boolean;
   rating: number;
   previewImage: string;
-  photos?: string[];  // ← Массив дополнительных фото
+  photos?: string[];
   rooms: number;
   guests: number;
-  bedrooms?: number;  // ← Добавьте
-  maxAdults?: number;  // ← Добавьте
-  features?: string[];  // ← Было goods в ТЗ, но лучше features
+  bedrooms?: number; 
+  maxAdults?: number;
+  features?: string[]; 
   commentsCount?: number;
-  author?: {  // ← Было host в ТЗ, но лучше author
+  author?: { 
     id: string;
     name: string;
     avatarUrl: string;
@@ -37,7 +35,6 @@ export type Offer = {
   };
 };
 
-// ✅ FullOffer — это тот же Offer (для совместимости)
 export type FullOffer = Offer;
 
 export type OffersList = Offer[];
