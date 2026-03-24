@@ -63,12 +63,7 @@ if (registerContent) {
 
 const offerContent = doc?.paths?.["/offers"]?.post?.requestBody?.content?.["multipart/form-data"];
 if (offerContent) {
-  offerContent.examples = {
-    generated: {
-      summary: "Сгенерированный пример (только текстовые поля)",
-      value: genOfferExample(),
-    },
-  };
+  offerContent.example = genOfferExample();
 }
 
 const reviewContent = doc?.paths?.["/comments/{offerId}"]?.post?.requestBody?.content?.["application/json"];

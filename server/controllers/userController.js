@@ -60,6 +60,10 @@ export const registration = async (req, res, next) => {
       return next(ApiError.badRequest('Некорректный email или password'));
     }
 
+    if (password.length < 6 || password.length > 12) {
+      return next(ApiError.badRequest('Пароль должен быть от 6 до 12 символов'));
+    }
+
     const candidate = await User.findOne({ where: { email } });
     if (candidate) {
       return next(ApiError.badRequest('Пользователь с таким email уже существует'));
