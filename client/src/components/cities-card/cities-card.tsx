@@ -1,6 +1,9 @@
 import type { JSX } from 'react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAppSelector } from '../../hooks';
+import { getAuthorizationStatus } from '../../store/selectors';
+import { AuthorizationStatus, AppRoute } from '../../const';
 import type { FullOffer } from '../../types/offer';
 
 interface Props {
@@ -11,6 +14,9 @@ interface Props {
 }
 
 function CitiesCard({ offer, onCardHover, cardType = 'cities', onFavoriteClick }: Props): JSX.Element {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const authorizationStatus = useAppSelector(getAuthorizationStatus);
   const [isActive, setIsActive] = useState(false);
 
   const handleMouseEnter = () => {
@@ -30,7 +36,12 @@ function CitiesCard({ offer, onCardHover, cardType = 'cities', onFavoriteClick }
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
+    if (authorizationStatus !== AuthorizationStatus.Auth) {
+      navigate(AppRoute.Login, { state: { from: location } });
+      return;
+    }
+
     if (onFavoriteClick) {
       onFavoriteClick(offer.id);
     }
