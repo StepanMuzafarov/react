@@ -95,8 +95,9 @@ export const getFullOffer = async (req, res, next) => {
     });
     
     if (!offer) {
-      return next(ApiError.badRequest('Offer not found'));
+      return next(ApiError.notFound('Offer not found'));
     }
+    
     
     const adaptedOffer = adaptFullOfferToClient(offer, offer.author);
     
