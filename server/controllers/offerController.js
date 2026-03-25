@@ -32,9 +32,11 @@ export async function createOffer(req, res, next) {
      return next(ApiError.badRequest('Превью изображение обязательно для загрузки'));
    }
 
+   if (!req.files?.photos || req.files.photos.length !== 6) {
+      return next(ApiError.badRequest('Необходимо загрузить ровно 6 фотографий жилья'));
+    }
 
    const previewImagePath = `/static/${req.files.previewImage[0].filename}`;
-
 
    let processedPhotos = [];
    if (req.files?.photos) {
@@ -93,8 +95,9 @@ export const getFullOffer = async (req, res, next) => {
     });
     
     if (!offer) {
-      return next(ApiError.badRequest('Offer not found'));
+      return next(ApiError.notFound('Offer not found'));
     }
+    
     
     const adaptedOffer = adaptFullOfferToClient(offer, offer.author);
     
